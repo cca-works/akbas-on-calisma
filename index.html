@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Akbaş Tekstil · Endüstriyel Yapı Ön Çalışma · Çağlar Mimarlık</title>
+<link rel="icon" href="https://static.parastorage.com/client/pfavico.ico" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --ink:#1a1a1a; --mute:#6b7280; --acc:#c62828; --panel:#ffffff; --line:#dddddd; }
+  html,body { margin:0; padding:0; background:#ffffff; color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial; overflow:hidden; }
+  #app { position:fixed; inset:0; }
+  #canvas-host { position:absolute; inset:0; }
+  canvas { display:block; }
+  .panel { background:rgba(255,255,255,0.96); backdrop-filter: blur(6px); border:1px solid var(--line); border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .chip { background:#f7f7f5; border:1px solid var(--line); padding:5px 10px; border-radius:999px; font-size:11px; color:#333; }
+  .btn { background:#ffffff; border:1px solid var(--line); color:var(--ink); padding:8px 12px; border-radius:6px; font-size:12px; cursor:pointer; transition: all .12s; font-weight:500; }
+  .btn:hover { background:#f1f1ef; border-color:#999; }
+  .btn.active { background:var(--acc); border-color:var(--acc); color:#fff; font-weight:600; }
+  .btn.primary { background:var(--acc); border-color:var(--acc); color:#fff; font-weight:600; }
+  .btn.primary:hover { background:#a81e1e; }
+  .section-title { font-size:10px; letter-spacing: 0.15em; text-transform: uppercase; color:var(--mute); font-weight:700; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+  .kv { display:flex; justify-content:space-between; font-size:12px; padding:3px 0; }
+  .kv span:first-child { color:var(--mute); }
+  .kv span:last-child { font-weight:600; font-variant-numeric: tabular-nums; }
+  .toggle { display:flex; align-items:center; gap:8px; font-size:12px; padding:5px 0; cursor:pointer; }
+  .toggle input { accent-color: var(--acc); }
+  hr { border: none; border-top: 1px solid #eee; margin: 10px 0; }
+  .scope-item { padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 12px; }
+  .scope-item:last-child { border-bottom: none; }
+  .scope-num { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; background: var(--acc); color:#fff; border-radius: 50%; font-weight: 700; font-size: 10px; margin-right: 8px; }
+  .scope-title { font-weight: 600; }
+  .scope-desc { color: var(--mute); font-size: 11px; margin-top: 2px; margin-left: 30px; }
+  .price-range { background: linear-gradient(135deg, #c62828, #8b1a1a); color: #fff; padding: 18px 20px; border-radius: 10px; margin-top: 16px; text-align: center; box-shadow: 0 4px 12px rgba(198,40,40,0.3); }
+  .price-range .label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.85; }
+  .price-range .amount { font-size: 22px; font-weight: 800; margin: 6px 0 2px; letter-spacing: 0.5px; }
+  .price-range .note { font-size: 10px; opacity: 0.9; }
+  .big-logo { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); text-align: center; z-index: 5; pointer-events: auto; padding: 10px 28px; background: rgba(255,255,255,0.88); backdrop-filter: blur(4px); border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 14px rgba(0,0,0,0.08); transition: all 0.2s; }
+  .big-logo:hover { background: rgba(255,255,255,0.98); box-shadow: 0 6px 20px rgba(198,40,40,0.15); transform: translateX(-50%) translateY(-2px); }
+  .big-logo-text { font-family: "Inter", "Segoe UI", "Helvetica Neue", system-ui, -apple-system, sans-serif; font-weight: 500; font-size: 44px; letter-spacing: 3.5px; color: #1a1a1a; line-height: 1; padding: 0 0 2px; }
+  .big-logo-sub { font-size: 9.5px; letter-spacing: 4px; color: #888; margin-top: 8px; font-weight: 500; }
+  .brand-mark { width: 40px; height: 40px; background: linear-gradient(135deg, #1a1a1a, #3a3a3a); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; letter-spacing: 0.5px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); border-left: 3px solid #c62828; font-family: Georgia, "Times New Roman", serif; }
+  .brand-mark-sm { width: 30px; height: 30px; background: linear-gradient(135deg, #1a1a1a, #3a3a3a); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; border-radius: 4px; border-left: 2px solid #c62828; font-family: Georgia, "Times New Roman", serif; }
+  a { text-decoration: none; }
+  #loader { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:#ffffff; z-index:50; transition:opacity .5s; }
+  #loader.hide { opacity:0; pointer-events:none; }
+  .dot { width:8px; height:8px; border-radius:50%; background:var(--acc); animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity:.3 } 50% { opacity:1 } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="canvas-host"></div>
+
+  <div id="loader"><div class="flex items-center gap-3"><div class="dot"></div><div class="text-sm text-gray-600">3D model yükleniyor…</div></div></div>
+
+  <!-- Top bar -->
+  <div class="panel fixed top-4 left-4 right-4 px-5 py-3 flex items-center justify-between" style="z-index:10">
+    <div class="flex items-center gap-4">
+      <a href="https://www.caglarmimarlik.com/" target="_blank" rel="noopener" class="flex items-center gap-3 no-underline hover:opacity-90 transition">
+        <div class="brand-mark">ÇM</div>
+        <div>
+          <div class="text-[13px] font-extrabold tracking-widest text-gray-900">ÇAĞLAR MİMARLIK</div>
+          <div class="text-[9px] text-gray-500 tracking-wider">40 SENELİK TECRÜBE · MİMARLIK + MÜHENDİSLİK + İNŞAAT</div>
+        </div>
+      </a>
+      <div class="h-8 w-px bg-gray-300"></div>
+      <div>
+        <div class="text-sm font-bold tracking-tight text-red-700">AKBAŞ TEKSTİL · ENDÜSTRİYEL YAPI ÖN ÇALIŞMA</div>
+        <div class="text-xs text-gray-500">Bodrum Katlı Betonarme Yapı + Çelik Makas Çatı · 55 × 40 m · 2.200 m²</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="chip">Yerinde Döküm BA</span>
+      <span class="chip">Çelik Makas</span>
+      <span class="chip">2× Beşik</span>
+      <span class="chip">6 m Bodrum</span>
+    </div>
+  </div>
+
+  <!-- Left control panel -->
+  <div class="panel fixed left-4 top-24 p-4 w-60" style="z-index:10">
+    <div class="section-title">Görünüm</div>
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <button class="btn" data-view="iso">Perspektif</button>
+      <button class="btn" data-view="top">Üstten</button>
+      <button class="btn" data-view="front">Ön Cephe</button>
+      <button class="btn" data-view="side">Yan Cephe</button>
+    </div>
+
+    <hr />
+    <div class="section-title">Katmanlar</div>
+    <label class="toggle"><input type="checkbox" data-layer="radye" checked> Radye Temel</label>
+    <label class="toggle"><input type="checkbox" data-layer="basement" checked> Bodrum Kolonları</label>
+    <label class="toggle"><input type="checkbox" data-layer="perde"> Perde Duvar (bodrum)</label>
+    <label class="toggle"><input type="checkbox" data-layer="gfslab" checked> Zemin Kat Tabliyesi</label>
+    <label class="toggle"><input type="checkbox" data-layer="upper" checked> Üst Yapı Kolonları + Kirişler</label>
+    <label class="toggle"><input type="checkbox" data-layer="trusses" checked> Çelik Makaslar</label>
+    <label class="toggle"><input type="checkbox" data-layer="purlins" checked> Aşıklar + İç Oluk</label>
+    <label class="toggle"><input type="checkbox" data-layer="facade"> Cephe Panelleri</label>
+    <label class="toggle"><input type="checkbox" data-layer="roofpanel"> Çatı Panelleri</label>
+    <label class="toggle"><input type="checkbox" data-layer="doors" checked> Kapılar</label>
+    <label class="toggle"><input type="checkbox" data-layer="dims"> Ölçü Kotları</label>
+
+    <hr />
+    <div class="section-title">Ölçüler</div>
+    <div class="kv"><span>Boy × En</span><span>55 × 40 m</span></div>
+    <div class="kv"><span>Mahya kot</span><span>+7.00 m</span></div>
+    <div class="kv"><span>Makas altı</span><span>+6.00 m</span></div>
+    <div class="kv"><span>Bodrum kotu</span><span>−6.00 m</span></div>
+    <div class="kv"><span>Toplam alan</span><span>2.200 m²</span></div>
+    <div class="kv"><span>Taşıyıcı</span><span>Tam BA + Çelik</span></div>
+  </div>
+
+  <!-- Right scope panel -->
+  <div class="panel fixed right-4 top-24 p-5 w-96 max-h-[85vh] overflow-y-auto" style="z-index:10">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <div class="text-base font-bold">İŞ KAPSAMI</div>
+        <div class="text-xs text-gray-500">Teklif No: 2026/QT-412 · Nisan 2026</div>
+      </div>
+      <button class="btn primary" onclick="window.print()">Yazdır</button>
+    </div>
+
+    <div class="text-xs text-gray-600 leading-relaxed mb-3 pb-3 border-b border-gray-200">
+      55 × 40 m ölçülerinde, 6 m yükseklikli bodrum katlı, tam yerinde döküm betonarme taşıyıcı sistem üzerine 2 adet beşik formunda çelik makas çatı sisteminden oluşan, 2.200 m² alanlı endüstriyel yapı anahtar teslim yapım işidir.
+    </div>
+
+    <div id="scope-list"></div>
+
+    <div class="price-range">
+      <div class="label">Tahmini Yatırım Bedeli</div>
+      <div class="amount">₺ 90.000.000 — 100.000.000</div>
+      <div class="note">KDV hariç · 2026 Nisan piyasa birim fiyatlarıyla hazırlanmıştır</div>
+    </div>
+
+    <div class="mt-4 text-xs text-gray-600 space-y-2">
+      <div><strong class="text-gray-800">Süre:</strong> Yer tesliminden sonra yaklaşık 7 ay (210 iş günü)</div>
+      <div><strong class="text-gray-800">Geçerlilik:</strong> 30 gün</div>
+      <div><strong class="text-gray-800">Ödeme:</strong> 5 aşamalı mutabık kalınacak plan</div>
+      <div class="pt-2 text-[10px] text-gray-500 italic">* Yatırım bedel aralığı; zemin sınıfı, çelik fiyat dalgalanması ve opsiyonel kalemlerin netleşmesiyle kesinleşecektir.</div>
+    </div>
+  </div>
+
+  <!-- Alt sağ iletişim -->
+  <div class="panel fixed bottom-4 right-4 px-3 py-2" style="z-index:10">
+    <div class="text-[10px] text-gray-600"><span class="text-red-700 font-semibold">T:</span> 0542 214 03 22 · <span class="text-red-700 font-semibold">E:</span> salihcelik@caglarmimarlik.com</div>
+  </div>
+  <div class="panel fixed bottom-4 left-4 px-3 py-2" style="z-index:10">
+    <div class="text-xs text-gray-500"><span class="text-red-700 font-semibold">Fare:</span> Sol = Döndür · Sağ = Kaydır · Tekerlek = Zoom</div>
+  </div>
+
+  <!-- Büyük merkez logo (filigran) -->
+  <a href="https://www.caglarmimarlik.com/" target="_blank" rel="noopener" class="big-logo" style="z-index:5">
+    <div class="big-logo-text">ÇAĞLAR MİMARLIK</div>
+    <div class="big-logo-sub">40 SENELİK TECRÜBE · MİMARLIK + MÜHENDİSLİK + İNŞAAT · www.caglarmimarlik.com</div>
+  </a>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.163.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.163.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ========= Building parameters =========
+const BAY_X = 7.85, BAY_COUNT = 7;
+const LENGTH = BAY_X * BAY_COUNT;
+const BAY_Z = 20;
+const DEPTH = BAY_Z * 2;
+const EAVE = 6;                         // makas altı 6 m (zemin kat yüksekliği)
+const SLOPE = 0.10;
+const GABLE_HALF = DEPTH / 4;
+const RIDGE = EAVE + GABLE_HALF * SLOPE;
+const RIDGE1_Z = DEPTH / 4;
+const RIDGE2_Z = 3 * DEPTH / 4;
+const VALLEY_Z = DEPTH / 2;
+
+const COL_W = 0.70, COL_D = 0.70;
+const CHORD_W = 0.15, CHORD_H = 0.15;
+const WEB_W = 0.08, WEB_H = 0.08;
+const PURLIN_H = 0.20, PURLIN_W = 0.08;
+
+const BASEMENT_H = 6.00;                // bodrum kat yüksekliği 6 m
+const RADYE_T = 0.50;
+const GF_SLAB_T = 0.30;
+const GF_BEAM_H = 0.80, GF_BEAM_W = 0.50;
+const BASEMENT_FLOOR = -BASEMENT_H;
+const RADYE_BOTTOM = BASEMENT_FLOOR - RADYE_T;
+const PERDE_T = 0.30;
+const BASEMENT_Z = [0, 10, 20, 30, 40];
+const MAIN_Z = [0, 20, 40];
+
+const BEAM_H = 0.70, BEAM_W = 0.40;
+const BOTTOM_Y = EAVE + BEAM_H;
+const RIDGE_Y = RIDGE + BEAM_H;
+const PANEL = 2.0;
+const CRANE_H = 1.20, CRANE_P = 0.50, CRANE_Y = 9.00;
+
+// ========= Renderer / Scene =========
+const host = document.getElementById('canvas-host');
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+host.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff);
+scene.fog = new THREE.Fog(0xffffff, 180, 420);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.5, 2000);
+camera.position.set(55, 75, 140);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(LENGTH/2, 4, DEPTH/2);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 8;
+controls.maxDistance = 400;
+controls.maxPolarAngle = Math.PI - 0.05;
+
+const hemi = new THREE.HemisphereLight(0xffffff, 0xcccccc, 0.75);
+scene.add(hemi);
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const sun = new THREE.DirectionalLight(0xffffff, 1.0);
+sun.position.set(40, 70, -20);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -40; sun.shadow.camera.right = 100;
+sun.shadow.camera.top = 90; sun.shadow.camera.bottom = -40;
+sun.shadow.camera.near = 1; sun.shadow.camera.far = 240;
+sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.02;
+scene.add(sun);
+
+// ========= Groups =========
+const g = {
+  radye: new THREE.Group(),
+  basement: new THREE.Group(),
+  perde: new THREE.Group(),
+  gfslab: new THREE.Group(),
+  upper: new THREE.Group(),
+  trusses: new THREE.Group(),
+  purlins: new THREE.Group(),
+  facade: new THREE.Group(),
+  roofpanel: new THREE.Group(),
+  doors: new THREE.Group(),
+  dims: new THREE.Group()
+};
+Object.values(g).forEach(gr => scene.add(gr));
+
+// ========= Materials =========
+const STEEL_RED = 0xc62828;
+const mSteel = new THREE.MeshStandardMaterial({ color: STEEL_RED, roughness: 0.5, metalness: 0.35 });
+const mSteelChord = new THREE.MeshStandardMaterial({ color: STEEL_RED, roughness: 0.5, metalness: 0.35 });
+const mSteelWeb = new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.55, metalness: 0.3 });
+const mConcrete = new THREE.MeshStandardMaterial({ color: 0xa8a49a, roughness: 0.88, metalness: 0 });
+const mConcreteBeam = new THREE.MeshStandardMaterial({ color: 0x9e9a90, roughness: 0.9, metalness: 0 });
+const mTrim = new THREE.MeshStandardMaterial({ color: STEEL_RED, roughness: 0.4, metalness: 0.4 });
+const mFacade = new THREE.MeshStandardMaterial({ color: 0xd8d8d0, roughness: 0.7, metalness: 0.15, transparent: true, opacity: 0.95, side: THREE.DoubleSide });
+const mRoofPanel = new THREE.MeshStandardMaterial({ color: 0x5a5a5a, roughness: 0.55, metalness: 0.25, side: THREE.DoubleSide });
+const mDoorPanel = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.6, metalness: 0.35 });
+
+// ========= Ground =========
+{
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(300, 300),
+    new THREE.MeshStandardMaterial({ color: 0xa8b0b5, roughness: 0.95, metalness: 0, transparent: true, opacity: 0.20, depthWrite: false })
+  );
+  ground.rotation.x = -Math.PI/2;
+  ground.position.set(LENGTH/2, -0.02, DEPTH/2);
+  ground.receiveShadow = true;
+  scene.add(ground);
+}
+
+// ========= Radye =========
+{
+  const r = new THREE.Mesh(
+    new THREE.BoxGeometry(LENGTH + 3, RADYE_T, DEPTH + 3),
+    mConcrete
+  );
+  r.position.set(LENGTH/2, RADYE_BOTTOM + RADYE_T/2, DEPTH/2);
+  r.castShadow = true; r.receiveShadow = true;
+  g.radye.add(r);
+}
+
+// ========= Perde duvar (basement perimeter) =========
+{
+  const H = BASEMENT_H - GF_SLAB_T;
+  const yMid = BASEMENT_FLOOR + H/2;
+  for (const z of [0, DEPTH]){
+    const zOff = z === 0 ? -PERDE_T/2 : PERDE_T/2;
+    const w = new THREE.Mesh(new THREE.BoxGeometry(LENGTH + 0.6, H, PERDE_T), mConcrete);
+    w.position.set(LENGTH/2, yMid, z + zOff);
+    w.castShadow = true; w.receiveShadow = true;
+    g.perde.add(w);
+  }
+  for (const x of [0, LENGTH]){
+    const xOff = x === 0 ? -PERDE_T/2 : PERDE_T/2;
+    const w = new THREE.Mesh(new THREE.BoxGeometry(PERDE_T, H, DEPTH), mConcrete);
+    w.position.set(x + xOff, yMid, DEPTH/2);
+    w.castShadow = true; w.receiveShadow = true;
+    g.perde.add(w);
+  }
+}
+
+// ========= Araç Rampası (6 m wide, short edge, 20% slope) =========
+{
+  const RAMP_W = 6.0;
+  const RAMP_RUN = DEPTH;
+  const RAMP_DROP = BASEMENT_H;
+  const slopeLen = Math.sqrt(RAMP_RUN*RAMP_RUN + RAMP_DROP*RAMP_DROP);
+  const theta = Math.atan2(RAMP_DROP, RAMP_RUN);
+  const slabT = 0.25;
+  const xOuter = -RAMP_W;
+
+  const slab = new THREE.Mesh(
+    new THREE.BoxGeometry(RAMP_W, slabT, slopeLen),
+    mConcrete
+  );
+  slab.position.set(-RAMP_W/2, -RAMP_DROP/2, RAMP_RUN/2);
+  slab.rotation.x = theta;
+  slab.castShadow = true; slab.receiveShadow = true;
+  g.basement.add(slab);
+
+  // Outer retaining wall
+  const tWall = 0.30;
+  const vs = new Float32Array([
+    xOuter,         0, 0,
+    xOuter,         0, RAMP_RUN,
+    xOuter,   -RAMP_DROP, RAMP_RUN,
+    xOuter - tWall, 0, 0,
+    xOuter - tWall, 0, RAMP_RUN,
+    xOuter - tWall, -RAMP_DROP, RAMP_RUN,
+  ]);
+  const idx = [ 0,2,1, 3,4,5, 0,1,4, 0,4,3, 1,2,5, 1,5,4, 0,3,5, 0,5,2 ];
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(vs, 3));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  const wall = new THREE.Mesh(geo, mConcrete);
+  wall.castShadow = true; wall.receiveShadow = true;
+  g.basement.add(wall);
+}
+
+// ========= Basement columns (cast-in-place, continuous up to eave for main axes) =========
+// At A/B/C (MAIN_Z): columns continue from radye all the way to EAVE — no guşe since no precast transition
+// At A'/B' (z=10, 30): short columns only up to GF slab underside
+function makeCastColumn(x, z, full){
+  const yBot = BASEMENT_FLOOR;
+  const yTop = full ? EAVE : -GF_SLAB_T;
+  const h = yTop - yBot;
+  const col = new THREE.Mesh(new THREE.BoxGeometry(COL_W, h, COL_D), mConcrete);
+  col.position.set(x, yBot + h/2, z);
+  col.castShadow = true; col.receiveShadow = true;
+  (full ? g.upper : g.basement).add(col);
+  if (full){
+    // Corbel at top
+    const corb = new THREE.Mesh(new THREE.BoxGeometry(COL_W + 0.20, 0.35, COL_D + 0.20), mConcrete);
+    corb.position.set(x, EAVE - 0.175, z);
+    corb.castShadow = true;
+    g.upper.add(corb);
+    // Anchor plate
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(COL_W + 0.10, 0.03, COL_D + 0.10), mTrim);
+    plate.position.set(x, EAVE + 0.015, z);
+    g.upper.add(plate);
+  }
+}
+function makeCraneCorbel(x, z, facing){
+  const s = new THREE.Shape();
+  s.moveTo(0, 0);
+  s.lineTo(0, CRANE_H);
+  s.lineTo(CRANE_P, CRANE_H);
+  s.closePath();
+  const geo = new THREE.ExtrudeGeometry(s, { depth: COL_W, bevelEnabled: false });
+  const m = new THREE.Mesh(geo, mConcrete);
+  if (facing > 0){
+    m.rotation.y = -Math.PI/2;
+    m.position.set(x + COL_W/2, CRANE_Y, z + COL_D/2);
+  } else {
+    m.rotation.y = Math.PI/2;
+    m.position.set(x - COL_W/2, CRANE_Y, z - COL_D/2);
+  }
+  m.castShadow = true;
+  g.upper.add(m);
+}
+for (let i = 0; i <= BAY_COUNT; i++){
+  const x = i * BAY_X;
+  for (const z of BASEMENT_Z){
+    const isMain = MAIN_Z.includes(z);
+    makeCastColumn(x, z, isMain);
+  }
+}
+
+// ========= Zemin Kat Tabliyesi (BA slab + beams) =========
+{
+  const slab = new THREE.Mesh(
+    new THREE.BoxGeometry(LENGTH + 0.6, GF_SLAB_T, DEPTH + 0.6),
+    mConcreteBeam
+  );
+  slab.position.set(LENGTH/2, -GF_SLAB_T/2, DEPTH/2);
+  slab.castShadow = true; slab.receiveShadow = true;
+  g.gfslab.add(slab);
+  for (const z of BASEMENT_Z){
+    const b = new THREE.Mesh(new THREE.BoxGeometry(LENGTH + 0.3, GF_BEAM_H, GF_BEAM_W), mConcreteBeam);
+    b.position.set(LENGTH/2, -GF_SLAB_T - GF_BEAM_H/2, z);
+    b.castShadow = true;
+    g.gfslab.add(b);
+  }
+  for (let i = 0; i <= BAY_COUNT; i++){
+    const b = new THREE.Mesh(new THREE.BoxGeometry(GF_BEAM_W, GF_BEAM_H, DEPTH + 0.3), mConcreteBeam);
+    b.position.set(i*BAY_X, -GF_SLAB_T - GF_BEAM_H/2, DEPTH/2);
+    b.castShadow = true;
+    g.gfslab.add(b);
+  }
+}
+
+// ========= Atkı kirişi (cast-in-place, yerinde döküm) =========
+for (const z of [0, DEPTH/2, DEPTH]){
+  const beam = new THREE.Mesh(new THREE.BoxGeometry(LENGTH + 0.3, BEAM_H, BEAM_W), mConcreteBeam);
+  beam.position.set(LENGTH/2, EAVE + BEAM_H/2, z);
+  beam.castShadow = true; beam.receiveShadow = true;
+  g.upper.add(beam);
+}
+
+// ========= Çelik Makas Çatı (2× beşik) =========
+function makeMember(x, z1, y1, z2, y2, w, h, mat, group){
+  const dz = z2 - z1, dy = y2 - y1;
+  const len = Math.hypot(dz, dy) + 0.02;
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, len), mat);
+  m.position.set(x, (y1+y2)/2, (z1+z2)/2);
+  m.rotation.x = -Math.atan2(dy, dz);
+  m.castShadow = true; m.receiveShadow = true;
+  group.add(m);
+}
+function buildGableTruss(x, zStart, zEnd){
+  const span = zEnd - zStart;
+  const halfSpan = span / 2;
+  const slope = (RIDGE_Y - BOTTOM_Y) / halfSpan;
+  const nPanels = Math.round(span / PANEL);
+  const apexIdx = nPanels / 2;
+  const topYat = (zAbs) => {
+    const zLoc = zAbs - zStart;
+    return BOTTOM_Y + (zLoc <= halfSpan ? slope * zLoc : slope * (span - zLoc));
+  };
+  const nodes = [];
+  for (let i = 0; i <= nPanels; i++) nodes.push({ z: zStart + i*PANEL, botY: BOTTOM_Y, topY: topYat(zStart + i*PANEL) });
+  for (let i = 0; i < nPanels; i++){
+    const a = nodes[i], b = nodes[i+1];
+    makeMember(x, a.z, a.topY, b.z, b.topY, CHORD_W, CHORD_H, mSteelChord, g.trusses);
+  }
+  const bot = new THREE.Mesh(new THREE.BoxGeometry(CHORD_W, CHORD_H, span + 0.02), mSteelChord);
+  bot.position.set(x, BOTTOM_Y, (zStart + zEnd)/2);
+  bot.castShadow = true;
+  g.trusses.add(bot);
+  for (let i = 1; i < nPanels; i++){
+    const n = nodes[i];
+    makeMember(x, n.z, n.botY, n.z, n.topY, WEB_W, WEB_H, mSteelWeb, g.trusses);
+  }
+  for (let i = 0; i < nPanels; i++){
+    const a = nodes[i], b = nodes[i+1];
+    if (i < apexIdx) makeMember(x, a.z, a.botY, b.z, b.topY, WEB_W, WEB_H, mSteelWeb, g.trusses);
+    else makeMember(x, b.z, b.botY, a.z, a.topY, WEB_W, WEB_H, mSteelWeb, g.trusses);
+  }
+}
+for (let i = 0; i <= BAY_COUNT; i++){
+  buildGableTruss(i * BAY_X, 0, VALLEY_Z);
+  buildGableTruss(i * BAY_X, VALLEY_Z, DEPTH);
+}
+for (const rz of [RIDGE1_Z, RIDGE2_Z]){
+  const m = new THREE.Mesh(new THREE.BoxGeometry(LENGTH + 0.3, 0.20, 0.12), mSteelChord);
+  m.position.set(LENGTH/2, RIDGE_Y + 0.10, rz);
+  m.castShadow = true;
+  g.trusses.add(m);
+}
+
+// ========= İç oluk (valley gutter at B axis) =========
+{
+  const gut = new THREE.Mesh(new THREE.BoxGeometry(LENGTH + 0.30, 0.18, 0.55), mTrim);
+  gut.position.set(LENGTH/2, BOTTOM_Y - 0.06, VALLEY_Z);
+  gut.castShadow = true;
+  g.purlins.add(gut);
+  for (const px of [BAY_X, LENGTH/2, LENGTH - BAY_X]){
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, BOTTOM_Y - 0.1, 12), mTrim);
+    pipe.position.set(px, (BOTTOM_Y - 0.1)/2, VALLEY_Z + 0.35);
+    g.purlins.add(pipe);
+  }
+}
+
+// ========= Aşıklar =========
+function addPurlinsOnSlope(z1, y1, z2, y2){
+  const dz = z2 - z1, dy = y2 - y1;
+  const nPur = 6;
+  for (let k = 1; k < nPur; k++){
+    const t = k / nPur;
+    const z = z1 + dz * t;
+    const y = y1 + dy * t + 0.10;
+    const p = new THREE.Mesh(new THREE.BoxGeometry(LENGTH + 0.3, PURLIN_H, PURLIN_W), mSteelWeb);
+    p.position.set(LENGTH/2, y, z);
+    p.rotation.x = -Math.atan2(dy, dz);
+    p.castShadow = true;
+    g.purlins.add(p);
+  }
+}
+addPurlinsOnSlope(0, BOTTOM_Y, RIDGE1_Z, RIDGE_Y);
+addPurlinsOnSlope(RIDGE1_Z, RIDGE_Y, VALLEY_Z, BOTTOM_Y);
+addPurlinsOnSlope(VALLEY_Z, BOTTOM_Y, RIDGE2_Z, RIDGE_Y);
+addPurlinsOnSlope(RIDGE2_Z, RIDGE_Y, DEPTH, BOTTOM_Y);
+
+// ========= Seksiyonel + personel kapılar =========
+const DOOR_W = 5.0, DOOR_H = 5.0;
+const doorCenters = [ LENGTH*0.20, LENGTH*0.50, LENGTH*0.80 ];
+for (const xc of doorCenters){
+  const door = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W, DOOR_H, 0.10), mDoorPanel);
+  door.position.set(xc, DOOR_H/2, DEPTH + 0.06);
+  door.castShadow = true;
+  g.doors.add(door);
+  for (let k = 1; k < 10; k++){
+    const ln = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W + 0.04, 0.04, 0.04), mSteelChord);
+    ln.position.set(xc, k * DOOR_H/10, DEPTH + 0.13);
+    g.doors.add(ln);
+  }
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W + 0.40, 0.20, 0.15), mSteelChord);
+  frame.position.set(xc, DOOR_H + 0.10, DEPTH + 0.08);
+  g.doors.add(frame);
+  for (const side of [-1, 1]){
+    const fr = new THREE.Mesh(new THREE.BoxGeometry(0.20, DOOR_H + 0.20, 0.15), mSteelChord);
+    fr.position.set(xc + side * (DOOR_W/2 + 0.10), DOOR_H/2 + 0.10, DEPTH + 0.08);
+    g.doors.add(fr);
+  }
+}
+for (const px of [LENGTH * 0.25, LENGTH * 0.75]){
+  const pd = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 0.08), mDoorPanel);
+  pd.position.set(px, 1.1, -0.06);
+  pd.castShadow = true;
+  g.doors.add(pd);
+}
+
+// ========= Cephe panelleri (initial hidden) =========
+{
+  // South (z=DEPTH), carved for doors
+  const cuts = [0];
+  for (const cx of doorCenters){ cuts.push(cx - DOOR_W/2); cuts.push(cx + DOOR_W/2); }
+  cuts.push(LENGTH);
+  for (let i = 0; i < cuts.length; i += 2){
+    const x1 = cuts[i], x2 = cuts[i+1];
+    if (x2 - x1 < 0.05) continue;
+    const seg = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, DOOR_H, 0.06), mFacade);
+    seg.position.set((x1+x2)/2, DOOR_H/2, DEPTH + 0.03);
+    g.facade.add(seg);
+  }
+  const topH = EAVE - DOOR_H;
+  const top = new THREE.Mesh(new THREE.BoxGeometry(LENGTH, topH, 0.06), mFacade);
+  top.position.set(LENGTH/2, DOOR_H + topH/2, DEPTH + 0.03);
+  g.facade.add(top);
+  // North (z=0)
+  const pdc = [LENGTH * 0.25, LENGTH * 0.75];
+  const ncuts = [0]; for (const cx of pdc){ ncuts.push(cx - 0.5); ncuts.push(cx + 0.5); } ncuts.push(LENGTH);
+  for (let i = 0; i < ncuts.length; i += 2){
+    const x1 = ncuts[i], x2 = ncuts[i+1];
+    if (x2 - x1 < 0.05) continue;
+    const seg = new THREE.Mesh(new THREE.BoxGeometry(x2 - x1, 2.2, 0.06), mFacade);
+    seg.position.set((x1+x2)/2, 1.1, -0.03);
+    g.facade.add(seg);
+  }
+  const topN = new THREE.Mesh(new THREE.BoxGeometry(LENGTH, EAVE - 2.2, 0.06), mFacade);
+  topN.position.set(LENGTH/2, 2.2 + (EAVE - 2.2)/2, -0.03);
+  g.facade.add(topN);
+  // East/West
+  const wE = new THREE.Mesh(new THREE.BoxGeometry(0.06, EAVE, DEPTH), mFacade);
+  wE.position.set(LENGTH + 0.03, EAVE/2, DEPTH/2);
+  g.facade.add(wE);
+  const wW = new THREE.Mesh(new THREE.BoxGeometry(0.06, EAVE, DEPTH), mFacade);
+  wW.position.set(-0.03, EAVE/2, DEPTH/2);
+  g.facade.add(wW);
+  // Gable
+  for (const xSide of [0, LENGTH]){
+    const facingX = xSide === 0 ? -1 : 1;
+    const shape = new THREE.Shape();
+    shape.moveTo(0, EAVE);
+    shape.lineTo(RIDGE1_Z, RIDGE_Y);
+    shape.lineTo(VALLEY_Z, EAVE);
+    shape.lineTo(RIDGE2_Z, RIDGE_Y);
+    shape.lineTo(DEPTH, EAVE);
+    shape.lineTo(DEPTH, EAVE - 0.02);
+    shape.lineTo(0, EAVE - 0.02);
+    shape.closePath();
+    const geo = new THREE.ShapeGeometry(shape);
+    const mesh = new THREE.Mesh(geo, mFacade);
+    mesh.rotation.y = facingX > 0 ? -Math.PI/2 : Math.PI/2;
+    mesh.position.set(xSide + facingX * 0.03, 0, facingX > 0 ? 0 : DEPTH);
+    g.facade.add(mesh);
+  }
+}
+
+// ========= Çatı panelleri =========
+function addRoofPanelSlope(z1, y1, z2, y2){
+  const dz = z2 - z1, dy = y2 - y1;
+  const slopeLen = Math.hypot(dz, dy);
+  const m = new THREE.Mesh(new THREE.BoxGeometry(LENGTH + 0.8, 0.06, slopeLen + 0.3), mRoofPanel);
+  m.position.set(LENGTH/2, (y1+y2)/2 + 0.23, (z1+z2)/2);
+  m.rotation.x = -Math.atan2(dy, dz);
+  m.castShadow = true;
+  g.roofpanel.add(m);
+}
+addRoofPanelSlope(0, BOTTOM_Y, RIDGE1_Z, RIDGE_Y);
+addRoofPanelSlope(RIDGE1_Z, RIDGE_Y, VALLEY_Z, BOTTOM_Y);
+addRoofPanelSlope(VALLEY_Z, BOTTOM_Y, RIDGE2_Z, RIDGE_Y);
+addRoofPanelSlope(RIDGE2_Z, RIDGE_Y, DEPTH, BOTTOM_Y);
+
+// ========= Dimensions =========
+function addText(text, size, color){
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.font = 'bold 64px ui-monospace, Menlo, monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = color; ctx.fillText(text, c.width/2, c.height/2);
+  const tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
+  sp.scale.set(size*2, size, 1);
+  return sp;
+}
+const dimLineMat = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.9 });
+function addDimLine(p1, p2, label, size){
+  const v1 = new THREE.Vector3(...p1), v2 = new THREE.Vector3(...p2);
+  const geo = new THREE.BufferGeometry().setFromPoints([v1, v2]);
+  g.dims.add(new THREE.Line(geo, dimLineMat));
+  const dir = v2.clone().sub(v1).normalize();
+  const perp = new THREE.Vector3(-dir.z, 0, dir.x);
+  if (perp.lengthSq() < 0.01) perp.set(1,0,0);
+  perp.normalize().multiplyScalar(0.35);
+  for (const p of [v1,v2]){
+    g.dims.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p.clone().add(perp), p.clone().sub(perp)]), dimLineMat));
+  }
+  const mid = v1.clone().add(v2).multiplyScalar(0.5);
+  const sp = addText(label, size || 1.4, '#000000');
+  sp.position.copy(mid); sp.position.y += 0.35;
+  g.dims.add(sp);
+}
+const dimZLow = -5.5;
+for (let i = 0; i < BAY_COUNT; i++) addDimLine([i*BAY_X, 0.1, dimZLow], [(i+1)*BAY_X, 0.1, dimZLow], '7.85 m', 1.1);
+addDimLine([0, 0.1, dimZLow - 3.5], [LENGTH, 0.1, dimZLow - 3.5], '54.95 m', 1.6);
+const dimXLow = -5.5;
+for (let j = 0; j < 2; j++) addDimLine([dimXLow, 0.1, j*BAY_Z], [dimXLow, 0.1, (j+1)*BAY_Z], '20.00 m', 1.4);
+addDimLine([dimXLow - 3.5, 0.1, 0], [dimXLow - 3.5, 0.1, DEPTH], '40.00 m', 1.6);
+const dimXHigh = LENGTH + 5.5;
+addDimLine([dimXHigh, 0, DEPTH/2], [dimXHigh, EAVE, DEPTH/2], '6.00 m', 1.6);
+addDimLine([dimXHigh + 2.5, 0, RIDGE1_Z], [dimXHigh + 2.5, RIDGE, RIDGE1_Z], '7.00 m', 1.4);
+addDimLine([dimXHigh + 5, -BASEMENT_H, DEPTH/2], [dimXHigh + 5, 0, DEPTH/2], '6.00 m', 1.4);
+g.dims.visible = false;
+
+// ========= UI Bindings =========
+document.querySelectorAll('[data-layer]').forEach(cb => {
+  const key = cb.dataset.layer;
+  if (g[key]) g[key].visible = cb.checked;
+  cb.addEventListener('change', e => { if (g[key]) g[key].visible = e.target.checked; });
+});
+const views = {
+  iso:   { pos: [55, 75, 140], tgt: [LENGTH/2, 4, DEPTH/2] },
+  top:   { pos: [LENGTH/2, 150, DEPTH/2 + 0.001], tgt: [LENGTH/2, 0, DEPTH/2] },
+  front: { pos: [LENGTH/2, 8, -85], tgt: [LENGTH/2, 6, DEPTH/2] },
+  side:  { pos: [-90, 8, DEPTH/2], tgt: [LENGTH/2, 6, DEPTH/2] },
+};
+document.querySelectorAll('[data-view]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-view]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    const v = views[b.dataset.view];
+    animateCam(v.pos, v.tgt);
+  });
+});
+document.querySelector('[data-view="iso"]').classList.add('active');
+function animateCam(toPos, toTgt, ms=700){
+  const fromPos = camera.position.clone(), fromTgt = controls.target.clone();
+  const t0 = performance.now();
+  function step(){
+    const t = Math.min(1, (performance.now() - t0)/ms);
+    const e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+    camera.position.lerpVectors(fromPos, new THREE.Vector3(...toPos), e);
+    controls.target.lerpVectors(fromTgt, new THREE.Vector3(...toTgt), e);
+    if (t < 1) requestAnimationFrame(step);
+  }
+  step();
+}
+
+// ========= İş Kapsamı (scope list without individual prices) =========
+const scopeItems = [
+  {
+    title: 'Hafriyat ve Toprak İşleri',
+    desc: 'Bodrum kat için 6 m derinlikte hafriyat, iksa, su tahliyesi ve kazı atığı nakliye işlemleri.'
+  },
+  {
+    title: 'Radye Temel (C30 · 50 cm)',
+    desc: '2.200 m² tek parça radye temel · grobeton · donatı · pompa beton dökümü · kür işlemleri.'
+  },
+  {
+    title: 'Bodrum Perde Duvarları (30 cm)',
+    desc: 'Bodrum perimetresi boyunca 190 m × 7.7 m yerinde döküm betonarme perde duvar · çift yüz kalıp · yalıtım hazırlığı.'
+  },
+  {
+    title: 'Bodrum Kolonları (70 × 70 cm)',
+    desc: '40 adet yerinde döküm betonarme kolon · intermediate kolonlarla 10 m aks aralığı · 6 m kat yüksekliği.'
+  },
+  {
+    title: 'Zemin Kat Tabliyesi (C30 · Kirişli)',
+    desc: 'Bodrum tavanı / zemin kat döşemesi 30 cm BA tabliye · 50×80 downstand kirişler · tüm taşıyıcı sistem.'
+  },
+  {
+    title: 'Üst Yapı Betonarme (Kolon + Atkı Kirişi)',
+    desc: '24 adet yerinde döküm betonarme kolon (70×70 × 6 m) · 3 sıra atkı kirişi (40×70) · monolitik çelik çatı birleşim plakaları.'
+  },
+  {
+    title: 'Çelik Makas Çatı Sistemi',
+    desc: '2 adet beşik formunda çelik makas (Pratt tipi, 20 m açıklık × 16 adet), çatı aşıkları, mahya ve rüzgâr çaprazı, kumlama + galvaniz + epoksi boya.'
+  },
+  {
+    title: 'İç Oluk ve Yağmur Suyu Tahliyesi',
+    desc: 'B aksı boyunca galvaniz iç oluk · 4 adet yağmur iniş borusu · çatı dış kenar oluk sistemi.'
+  },
+  {
+    title: 'Çatı Kaplaması (Sandviç Panel 50 mm PU)',
+    desc: '2.210 m² çatı alanı sandviç panel · mahya kapağı · yan kenarlıklar · ışıklık (%3 polikarbon).'
+  },
+  {
+    title: 'Cephe Kaplaması (Sandviç Panel 60 mm PU)',
+    desc: '2.200 m² cephe alanı · pencere bantları (alüminyum doğrama · ısı cam) · köşe profilleri · denizlik · süpürgelik.'
+  },
+  {
+    title: 'Endüstriyel Kapılar',
+    desc: '3 adet 5 × 5 m motorlu seksiyonel kapı · kumanda + fotosel + elektrik tesisatı · 2 adet yalıtımlı personel kapısı.'
+  },
+  {
+    title: 'Araç Rampası (6 m × %20)',
+    desc: 'Kısa kenara yapışık 6 m genişliğinde, bodrum katına iniş sağlayan araç rampası · dış istinat duvarı · trafik bordürü.'
+  },
+  {
+    title: 'Endüstriyel Zemin Finisaj',
+    desc: '2.200 m² zemin kat · makinalı perdah · yüzey sertleştirici (kuvars/korund) · dilatasyon · kürleme.'
+  },
+  {
+    title: 'Nakliye · Montaj · Şantiye',
+    desc: 'Tüm malzeme nakliyesi · vinç seferber + kullanım · prefabrik/çelik montaj ekibi · şantiye kurulumu · iş güvenliği.'
+  },
+];
+
+const scopeHtml = scopeItems.map((s, i) => `
+  <div class="scope-item">
+    <div><span class="scope-num">${i+1}</span><span class="scope-title">${s.title}</span></div>
+    <div class="scope-desc">${s.desc}</div>
+  </div>
+`).join('');
+document.getElementById('scope-list').innerHTML = scopeHtml;
+
+// ========= Render loop =========
+function onResize(){
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+window.addEventListener('resize', onResize);
+(function loop(){
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+})();
+requestAnimationFrame(() => { setTimeout(() => document.getElementById('loader').classList.add('hide'), 250); });
+
+// ============================================================
+// ZİYARETÇİ ANALİTİĞİ — sadece kullanım istatistiği, PII yok
+// Kurulum:
+//   1) Discord webhook oluştur (Server Settings → Integrations → Webhooks → New)
+//   2) Webhook URL'ini aşağıya yapıştır
+//   3) Başka şey gerekmiyor — sayfa her açıldığında mesaj gelir
+// Alternatif: Cloudflare Workers endpoint veya webhook.site kullanılabilir
+// Not: KVKK gereği müşteriye genel gizlilik politikanız bu kullanımı kapsamalıdır
+// ============================================================
+const ANALYTICS = {
+  // Buraya Discord webhook veya kendi Cloudflare Worker endpoint URL'inizi yazın
+  webhookUrl: 'https://discord.com/api/webhooks/XXXXXXXXXXX/YYYYYYYYYYYY',
+  projectName: 'Akbaş Müşteri Sunumu',
+  heartbeatSec: 60,        // kaç saniyede bir "hala açık" sinyali
+};
+
+const _sid = (crypto.randomUUID ? crypto.randomUUID() : 's_' + Math.random().toString(36).slice(2)).slice(0,12);
+const _t0 = Date.now();
+const _stats = { views: {}, toggles: 0, prints: 0 };
+
+function _fp(){
+  return {
+    sid: _sid,
+    tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    lang: navigator.language,
+    screen: `${screen.width}×${screen.height}`,
+    viewport: `${innerWidth}×${innerHeight}`,
+    platform: (navigator.userAgentData?.platform) || navigator.platform || '?',
+    ua_short: (navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/) || ['?'])[0],
+    ref: document.referrer || '(direct)',
+    url: location.href.split('?')[0],
+  };
+}
+
+async function _sendEvent(type, extra){
+  if (!ANALYTICS.webhookUrl || ANALYTICS.webhookUrl.includes('XXXXX')) return;
+  const elapsed = Math.round((Date.now() - _t0)/1000);
+  const payload = {
+    content: `📊 **${ANALYTICS.projectName}** · \`${type}\` · ${_sid}\n` +
+             `⏱ ${elapsed}s  ·  🌐 ${_fp().tz}  ·  💻 ${_fp().platform} ${_fp().ua_short}\n` +
+             `📐 ${_fp().viewport}  ·  🔗 ${_fp().ref}\n` +
+             (extra ? `\`\`\`json\n${JSON.stringify(extra, null, 2).slice(0, 900)}\n\`\`\`` : ''),
+    embeds: type === 'open' ? [{
+      title: '🚀 Sunum Açıldı', color: 0xc62828,
+      fields: Object.entries(_fp()).map(([k,v]) => ({ name: k, value: String(v).slice(0,100), inline: true }))
+    }] : undefined
+  };
+  try {
+    await fetch(ANALYTICS.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      mode: 'no-cors',
+      keepalive: true,
+    });
+  } catch(_){}
+}
+
+// Açılış eventi
+_sendEvent('open');
+
+// Görünüm (view) değişiklikleri
+document.querySelectorAll('[data-view]').forEach(b => {
+  b.addEventListener('click', () => {
+    const v = b.dataset.view;
+    _stats.views[v] = (_stats.views[v] || 0) + 1;
+    _sendEvent('view_change', { view: v, totalSwitches: Object.values(_stats.views).reduce((a,b)=>a+b,0) });
+  });
+});
+
+// Katman (layer) aç/kapa
+document.querySelectorAll('[data-layer]').forEach(cb => {
+  cb.addEventListener('change', e => {
+    _stats.toggles++;
+    _sendEvent('layer_toggle', { layer: cb.dataset.layer, on: cb.checked, totalToggles: _stats.toggles });
+  });
+});
+
+// Yazdır butonu
+const _printOrig = window.print;
+window.print = function(){ _stats.prints++; _sendEvent('print_clicked', { totalPrints: _stats.prints }); _printOrig.apply(this, arguments); };
+
+// Kalp atışı (hâlâ açık mı?)
+const _hb = setInterval(() => _sendEvent('heartbeat', { elapsed_min: Math.round((Date.now()-_t0)/60000), views: _stats.views, toggles: _stats.toggles }), ANALYTICS.heartbeatSec * 1000);
+
+// Sayfa kapanırken veda
+window.addEventListener('beforeunload', () => {
+  clearInterval(_hb);
+  // navigator.sendBeacon daha güvenilir (sayfa kapanırken bile gönderir)
+  const data = JSON.stringify({
+    content: `👋 **Sunum Kapatıldı** · ${_sid}\n⏱ Toplam süre: **${Math.round((Date.now()-_t0)/1000)} saniye**\n📊 Görünüm: ${JSON.stringify(_stats.views)} · Toggle: ${_stats.toggles}`
+  });
+  try { navigator.sendBeacon(ANALYTICS.webhookUrl, new Blob([data], { type: 'application/json' })); } catch(_){}
+});
+</script>
+</body>
+</html>
